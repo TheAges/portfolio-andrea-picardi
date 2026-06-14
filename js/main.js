@@ -10,6 +10,26 @@ function isHomePage() {
   return last === "" || last === "index.html";
 }
 
+// True while the intro is still playing (home page, not yet completed).
+function introIsRunning() {
+  return !introStatus && introScene < 7;
+}
+
+// Block NATIVE page scrolling during the intro so spamming the wheel/touch/keys
+// cannot slide the document down past the still-typing text. The intro scrolls the
+// page itself in scene 3 via window.scrollTo (programmatic), which is unaffected by these.
+function preventIntroScroll(e) {
+  if (introIsRunning()) { e.preventDefault(); }
+}
+function preventIntroKeyScroll(e) {
+  if (!introIsRunning()) return;
+  const k = e.key;
+  if (k === " " || k === "Spacebar" || k === "PageDown" || k === "PageUp" ||
+      k === "ArrowDown" || k === "ArrowUp" || k === "Home" || k === "End") {
+    e.preventDefault();
+  }
+}
+
 // Main on load event
 
 window.onload = function(event) {
@@ -49,6 +69,12 @@ window.onload = function(event) {
     document.body.addEventListener("click", procedIntroAnimation, false);
     document.body.addEventListener("keyup", procedIntroAnimation, false);
     document.body.addEventListener("wheel", procedIntroAnimation, false);
+
+    // Suppress native scrolling for the duration of the intro (passive:false is required
+    // so preventDefault actually works on wheel/touchmove).
+    window.addEventListener("wheel", preventIntroScroll, { passive: false });
+    window.addEventListener("touchmove", preventIntroScroll, { passive: false });
+    window.addEventListener("keydown", preventIntroKeyScroll, false);
   }
 
   window.addEventListener("scroll", scrollSpy, false);
@@ -92,10 +118,6 @@ let secondSectionHeight;
 let introScene = -1;
 let isAnimating = false;
 
-// Throttle for intro user-input (prevents one wheel/key burst from advancing multiple scenes)
-let lastIntroAdvance = 0;
-const INTRO_INPUT_THROTTLE = 600; // ms
-
 function introAnimationManager(scene) {
   switch (scene) {
     case -1: //preparation for animation
@@ -132,12 +154,10 @@ function introAnimationManager(scene) {
 
     case 1: //diver line animation
         document.getElementById("first-divider").classList.remove("d-none");
-        isAnimating = true; // hold the lock until the divider finishes typing
-        typeWriter("first-divider", firstDivider, () => {
-          // advance to scene 2 ONLY after the divider has fully typed
-          introScene++;
-          introAnimationManager(introScene);
-        });
+        typeWriter("first-divider", firstDivider);
+
+        introScene++; //Automatically advance to next scene
+        setTimeout(() => { isAnimating = true;  introAnimationManager(introScene); isAnimating = false; }, 500);
       break;
   
     case 2: //Second parahrapher
@@ -171,22 +191,19 @@ function introAnimationManager(scene) {
       }, 200);
 
       introScene++; //Automatically advance to next scene
-      isAnimating = true; // hold the lock across the wait
-      setTimeout(() => { introAnimationManager(introScene); }, 1200);
+      setTimeout(() => { isAnimating = true;  introAnimationManager(introScene); isAnimating = false; }, 1200);
 
     break;
 
 
     case 5: //aboveWorks Text
       document.getElementById("cursor").classList.add("d-hide");
+
+      typeWriter("aboveWorkText", aboveWorkText);
       document.getElementById("cursor").classList.add("d-none");
 
-      isAnimating = true; // hold the lock until paragraph 3 finishes typing
-      typeWriter("aboveWorkText", aboveWorkText, () => {
-        // launch the appear animation ONLY after the text has fully typed
-        introScene++;
-        introAnimationManager(introScene);
-      });
+      introScene++; //Automatically advance to next scene
+      setTimeout(() => { isAnimating = true;  introAnimationManager(introScene); isAnimating = false; }, 2400);
     break;
 
 
@@ -209,12 +226,7 @@ function introAnimationManager(scene) {
 }
 
 function procedIntroAnimation() {
-  const now = Date.now();
-  // collapse rapid wheel/key bursts into a single advance
-  if (now - lastIntroAdvance < INTRO_INPUT_THROTTLE) return;
-
   if (!isAnimating && introScene < 5) {
-      lastIntroAdvance = now;
       introScene++;
       introAnimationManager(introScene);
   }
@@ -223,7 +235,7 @@ function procedIntroAnimation() {
 var minTyperSpeed = 30;
 var maxTyperSpeed = 2000;
 
-function typeWriter(obj_id, txt_to_write, onComplete) {
+function typeWriter(obj_id, txt_to_write, fastFawardEnable) {
   var t = 0;
 
   isAnimating = true;
@@ -254,9 +266,6 @@ function typeWriter(obj_id, txt_to_write, onComplete) {
       document.getElementById("cursor").classList.remove("hide");
 
       isAnimating = false;
-      lastIntroAdvance = Date.now(); // start the throttle window now, so a still-running scroll can't instantly skip the next paragraph
-
-      if (typeof onComplete === "function") { onComplete(); }
 
       /*
       if (fastFawardEnable) {
