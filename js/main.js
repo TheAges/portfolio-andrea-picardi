@@ -2,8 +2,7 @@ let workJSON;
 let maxScroll;
 let introStatus;
 
-// Site root for path resolution on GitHub Pages (change this one line if the repo is renamed or moved)
-const SITE_ROOT = "/portfolio-andrea-picardi/";
+// SITE_ROOT is defined as a global in each page's <head> (inline <script>), so both main.js and main_three.js can read it regardless of defer/async load order.
 
 // True when the current URL is the home page, both as "index.html" and as the directory form ending in "/"
 function isHomePage() {
