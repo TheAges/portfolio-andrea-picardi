@@ -234,7 +234,7 @@ function mainThree() {
     camera.position.z = 1;
 
     // Load vertex shader
-    const vertexShaderFile = "/js/shaders/vertexShader.glsl";
+    const vertexShaderFile = "js/shaders/vertexShader.glsl";
     fetch(vertexShaderFile)
     .then((response) => response.text())
     .then((vertexShader) => {
@@ -244,7 +244,7 @@ function mainThree() {
     });
 
     // Load fragment shader
-    const fragmentShaderFile = "/js/shaders/fragmentShader.glsl";
+    const fragmentShaderFile = "js/shaders/fragmentShader.glsl";
     fetch(fragmentShaderFile)
     .then((response) => response.text())
     .then((fragmentShader) => {
