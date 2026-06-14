@@ -135,7 +135,8 @@ function introAnimationManager(scene) {
         typeWriter("first-divider", firstDivider);
 
         introScene++; //Automatically advance to next scene
-        setTimeout(() => { isAnimating = true;  introAnimationManager(introScene); isAnimating = false; }, 500);
+        isAnimating = true; // hold the lock across the wait so a scroll can't slip in
+        setTimeout(() => { introAnimationManager(introScene); }, 500);
       break;
   
     case 2: //Second parahrapher
@@ -169,7 +170,8 @@ function introAnimationManager(scene) {
       }, 200);
 
       introScene++; //Automatically advance to next scene
-      setTimeout(() => { isAnimating = true;  introAnimationManager(introScene); isAnimating = false; }, 1200);
+      isAnimating = true; // hold the lock across the wait
+      setTimeout(() => { introAnimationManager(introScene); }, 1200);
 
     break;
 
@@ -181,7 +183,8 @@ function introAnimationManager(scene) {
       document.getElementById("cursor").classList.add("d-none");
 
       introScene++; //Automatically advance to next scene
-      setTimeout(() => { isAnimating = true;  introAnimationManager(introScene); isAnimating = false; }, 2400);
+      isAnimating = true; // hold the lock across the wait
+      setTimeout(() => { introAnimationManager(introScene); }, 2400);
     break;
 
 
@@ -249,6 +252,7 @@ function typeWriter(obj_id, txt_to_write, fastFawardEnable) {
       document.getElementById("cursor").classList.remove("hide");
 
       isAnimating = false;
+      lastIntroAdvance = Date.now(); // start the throttle window now, so a still-running scroll can't instantly skip the next paragraph
 
       /*
       if (fastFawardEnable) {
