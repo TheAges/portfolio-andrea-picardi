@@ -1115,11 +1115,25 @@ li {
 }
 
 .pubItem{
-    margin-top: 8px;
     border-bottom-style: solid;
     border-width: 1px;
 
+    padding-top: 8px;
 }
+
+.pubLink {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+.pubLink:hover { text-decoration: none; }
+
+.pubLink .pubTitle {
+  font-weight: 700;
+  font-style: italic;
+}
+
+.pubLink .pubMeta { opacity: 0.7; }
 
 .nb {
     white-space: nowrap;
