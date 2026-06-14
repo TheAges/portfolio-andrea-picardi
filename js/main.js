@@ -274,8 +274,7 @@ function typeWriter(obj_id, txt_to_write, onComplete) {
       t++;
       setTimeout(function() { typerLoop(); }, Math.random(maxTyperSpeed - minTyperSpeed)+minTyperSpeed);
     }
-
-    if (t == txt_to_write.length) {
+    else { // runs EXACTLY ONCE when typing is done (was a second `if`, which fired completion twice -> double scene-advance)
 
       cursorSpace.remove();
       document.getElementById("cursor").classList.remove("hide");
