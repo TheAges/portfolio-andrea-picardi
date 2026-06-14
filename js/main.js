@@ -132,11 +132,12 @@ function introAnimationManager(scene) {
 
     case 1: //diver line animation
         document.getElementById("first-divider").classList.remove("d-none");
-        typeWriter("first-divider", firstDivider);
-
-        introScene++; //Automatically advance to next scene
-        isAnimating = true; // hold the lock across the wait so a scroll can't slip in
-        setTimeout(() => { introAnimationManager(introScene); }, 500);
+        isAnimating = true; // hold the lock until the divider finishes typing
+        typeWriter("first-divider", firstDivider, () => {
+          // advance to scene 2 ONLY after the divider has fully typed
+          introScene++;
+          introAnimationManager(introScene);
+        });
       break;
   
     case 2: //Second parahrapher
@@ -178,13 +179,14 @@ function introAnimationManager(scene) {
 
     case 5: //aboveWorks Text
       document.getElementById("cursor").classList.add("d-hide");
-
-      typeWriter("aboveWorkText", aboveWorkText);
       document.getElementById("cursor").classList.add("d-none");
 
-      introScene++; //Automatically advance to next scene
-      isAnimating = true; // hold the lock across the wait
-      setTimeout(() => { introAnimationManager(introScene); }, 2400);
+      isAnimating = true; // hold the lock until paragraph 3 finishes typing
+      typeWriter("aboveWorkText", aboveWorkText, () => {
+        // launch the appear animation ONLY after the text has fully typed
+        introScene++;
+        introAnimationManager(introScene);
+      });
     break;
 
 
@@ -221,7 +223,7 @@ function procedIntroAnimation() {
 var minTyperSpeed = 30;
 var maxTyperSpeed = 2000;
 
-function typeWriter(obj_id, txt_to_write, fastFawardEnable) {
+function typeWriter(obj_id, txt_to_write, onComplete) {
   var t = 0;
 
   isAnimating = true;
@@ -253,6 +255,8 @@ function typeWriter(obj_id, txt_to_write, fastFawardEnable) {
 
       isAnimating = false;
       lastIntroAdvance = Date.now(); // start the throttle window now, so a still-running scroll can't instantly skip the next paragraph
+
+      if (typeof onComplete === "function") { onComplete(); }
 
       /*
       if (fastFawardEnable) {
