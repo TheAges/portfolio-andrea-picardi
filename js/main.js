@@ -96,7 +96,7 @@ let isAnimating = false;
 // inputUnlocked is true ONLY while the intro is idle at a manual-wait scene and ready
 // to accept a user advance. It is locked the moment an advance starts and only the
 // scene logic re-opens it. lastAdvance throttles rapid-fire wheel/key spam.
-let inputUnlocked = false;
+let inputUnlocked = true;   // open at start so the first user input can begin the intro (scene -1 -> 0)
 let lastAdvance = 0;
 const INTRO_INPUT_THROTTLE = 500; // ms; ignore repeat inputs faster than this
 
@@ -126,7 +126,8 @@ function introAnimationManager(scene) {
         paragrapghBottom.innerHTML = "";
 
         aboveWorkText.innerHTML = "";
-        
+
+        inputUnlocked = true; // ready to accept the first user advance (-1 -> 0)
       break;
 
     case 0: //First parahrapher
