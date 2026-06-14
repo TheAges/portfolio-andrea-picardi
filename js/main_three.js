@@ -1,5 +1,4 @@
-// Site root for path resolution on GitHub Pages (change this one line if the repo is renamed or moved)
-const SITE_ROOT = "/portfolio-andrea-picardi/";
+// SITE_ROOT is declared once in main.js (loaded before this file) and shared via global scope.
 
 //Global variables for changing colors
 let is_WebGL_Available = false;
