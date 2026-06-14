@@ -1,3 +1,9 @@
+// Treats both "index.html" and the directory form (URL ending in "/") as the home page
+function isHomeUrl(p) {
+  const last = p.split("/").pop();
+  return last === "" || last === "index.html";
+}
+
  let transitionDuration = 450;
   /*
   barba.init({
@@ -62,7 +68,7 @@
       name: 'fade',
       async: false,
       beforeLeave: async (data) =>  {
-        if (data.current.url.path.split("/").pop() == "index.html") {
+        if (isHomeUrl(data.current.url.path)) {
           await smoothScrollTo(window.innerHeight, 0, "smooth");
         }
         else {
@@ -90,7 +96,7 @@
 
         data.next.container.style.height = 0 + "px"; //To remove jumping when waiting for loadWorks() to finished 
 
-        if (data.next.url.path.split("/").pop() == "index.html") {
+        if (isHomeUrl(data.next.url.path)) {
           await loadWorks();
         }
 
@@ -113,7 +119,7 @@
           duration: transitionDuration,
           easing: 'easeInQuad'
         }).finished.then(() => {
-            if (data.next.url.path.split("/").pop() == "index.html") {  
+            if (isHomeUrl(data.next.url.path)) {  
               document.getElementById("first-section").classList.remove("hide");
               window.scrollTo({top: window.innerHeight, left: 0, behavior: "instant"});
     

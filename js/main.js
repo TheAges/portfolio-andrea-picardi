@@ -1,6 +1,15 @@
-﻿let workJSON;
+let workJSON;
 let maxScroll;
 let introStatus;
+
+// Site root for path resolution on GitHub Pages (change this one line if the repo is renamed or moved)
+const SITE_ROOT = "/portfolio-andrea-picardi/";
+
+// True when the current URL is the home page, both as "index.html" and as the directory form ending in "/"
+function isHomePage() {
+  const last = window.location.pathname.split("/").pop();
+  return last === "" || last === "index.html";
+}
 
 // Main on load event
 
@@ -27,7 +36,7 @@ window.onload = function(event) {
 
   //See if the intro was arlady played before (only if the page is the index one, otherwise is alewys true -> to prevent errors when swiching page with barba.js):
 
-  if ( currentPageName == "index.html" ) {
+  if ( isHomePage() ) {
     introStatus = JSON.parse(localStorage.getItem('introShowed'));
     if (introStatus == null) {introStatus = false;}
   }
@@ -51,7 +60,7 @@ window.onload = function(event) {
 
   //Popolate works section only if the page is the index one
   
-  if ( currentPageName == "index.html" ) {
+  if ( isHomePage() ) {
     loadWorks();
   }
   
@@ -346,7 +355,7 @@ window.onclick = function(event) {
     document.getElementById("works_container").innerHTML = "";
 
     //Load JSON works
-    fetch('/res/Porfolio_Works.json')
+    fetch(SITE_ROOT + "res/Porfolio_Works.json")
       .then(response => response.json())
       .then(data => {
         //console.log(data);
@@ -529,6 +538,7 @@ window.onclick = function(event) {
 
     //Based on the page, show the right one
     switch (pageName) {
+      case "":
       case "index.html":
         document.getElementById("aboutMenuButton").classList.remove("hide")
         break;
@@ -574,7 +584,7 @@ window.onclick = function(event) {
 
   function restartALL() {
     localStorage.removeItem("introShowed");
-    window.location.href = "/index.html";
+    window.location.href = SITE_ROOT + "index.html";
   }
 
   function changePage(w) {
@@ -584,7 +594,7 @@ window.onclick = function(event) {
     changeBgColor( workJSON[w].Background_color )
 
     if (workJSON[w].Webpage_available) {
-      barba.go(workJSON[w].Webpage_url);
+      barba.go(SITE_ROOT + workJSON[w].Webpage_url);
     }
     else {
       console.warn("the work page is not available"); 
@@ -597,7 +607,7 @@ window.onclick = function(event) {
     changeBgLineColor("#999999")
     changeBgColor("#FFFFFF")
 
-    barba.go("index.html");
+    barba.go(SITE_ROOT + "index.html");
   }
 
   function goToAboutpage() {
@@ -605,7 +615,7 @@ window.onclick = function(event) {
     changeBgLineColor("#999999")
     changeBgColor("#FFFFFF")
 
-    barba.go("pages/about.html");
+    barba.go(SITE_ROOT + "pages/about.html");
   }
 
   let contactsAreOpen = false;

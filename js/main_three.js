@@ -1,3 +1,6 @@
+// Site root for path resolution on GitHub Pages (change this one line if the repo is renamed or moved)
+const SITE_ROOT = "/portfolio-andrea-picardi/";
+
 //Global variables for changing colors
 let is_WebGL_Available = false;
 
@@ -38,7 +41,7 @@ else {
     document.getElementById("background-canvas").style.height = "100vh";
 
     //document.getElementById("background-canvas").style.backgroundImage = "url('res/Images/zz.BGs/" + Math.floor(Math.random() * 9) + ".png')";
-    document.getElementById("background-canvas").innerHTML = '<object id="svgBG_Wrapper" data="res/Images/zz.BGs/0.svg" type="image/svg+xml"><img src="res/Images/zz.BGs/0.png" /></object>';
+    document.getElementById("background-canvas").innerHTML = '<object id="svgBG_Wrapper" data="' + SITE_ROOT + 'res/Images/zz.BGs/0.svg" type="image/svg+xml"><img src="' + SITE_ROOT + 'res/Images/zz.BGs/0.png" /></object>';
 
     //document.getElementById("background-canvas").innerHTML = '<svg viewBox="0 0 100 100" class="icon shape-codepen"><use xlink:href="res/Images/zz.BGs/0.png"></use></svg>';
 
@@ -234,7 +237,7 @@ function mainThree() {
     camera.position.z = 1;
 
     // Load vertex shader
-    const vertexShaderFile = "js/shaders/vertexShader.glsl";
+    const vertexShaderFile = SITE_ROOT + "js/shaders/vertexShader.glsl";
     fetch(vertexShaderFile)
     .then((response) => response.text())
     .then((vertexShader) => {
@@ -244,7 +247,7 @@ function mainThree() {
     });
 
     // Load fragment shader
-    const fragmentShaderFile = "js/shaders/fragmentShader.glsl";
+    const fragmentShaderFile = SITE_ROOT + "js/shaders/fragmentShader.glsl";
     fetch(fragmentShaderFile)
     .then((response) => response.text())
     .then((fragmentShader) => {
