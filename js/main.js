@@ -92,6 +92,14 @@ let secondSectionHeight;
 let introScene = -1;
 let isAnimating = false;
 
+// Hardened intro gate:
+// inputUnlocked is true ONLY while the intro is idle at a manual-wait scene and ready
+// to accept a user advance. It is locked the moment an advance starts and only the
+// scene logic re-opens it. lastAdvance throttles rapid-fire wheel/key spam.
+let inputUnlocked = false;
+let lastAdvance = 0;
+const INTRO_INPUT_THROTTLE = 500; // ms; ignore repeat inputs faster than this
+
 function introAnimationManager(scene) {
   switch (scene) {
     case -1: //preparation for animation
@@ -127,11 +135,13 @@ function introAnimationManager(scene) {
       break;
 
     case 1: //diver line animation
+        inputUnlocked = false; // auto scene: no user advance
         document.getElementById("first-divider").classList.remove("d-none");
         typeWriter("first-divider", firstDivider);
 
         introScene++; //Automatically advance to next scene
-        setTimeout(() => { isAnimating = true;  introAnimationManager(introScene); isAnimating = false; }, 500);
+        isAnimating = true;
+        setTimeout(() => { introAnimationManager(introScene); isAnimating = false; }, 500);
       break;
   
     case 2: //Second parahrapher
@@ -140,6 +150,7 @@ function introAnimationManager(scene) {
       break;
 
     case 3: //Scroll to second section
+        inputUnlocked = false; // scrolling: no user advance
         document.getElementById("second-section").classList.remove("d-none");
         updateTopBarWrapper();
         maxScroll = Math.max( document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight ) - window.innerHeight;
@@ -147,6 +158,7 @@ function introAnimationManager(scene) {
       break;
 
     case 4: //positionated cursor at top of the page
+      inputUnlocked = false; // auto scene: no user advance
       document.getElementById("cursor").style.animation = "blinking 1s linear 0s infinite normal";
 
       setTimeout(() => {
@@ -165,7 +177,8 @@ function introAnimationManager(scene) {
       }, 200);
 
       introScene++; //Automatically advance to next scene
-      setTimeout(() => { isAnimating = true;  introAnimationManager(introScene); isAnimating = false; }, 1200);
+      isAnimating = true;
+      setTimeout(() => { introAnimationManager(introScene); isAnimating = false; }, 1200);
 
     break;
 
@@ -177,7 +190,8 @@ function introAnimationManager(scene) {
       document.getElementById("cursor").classList.add("d-none");
 
       introScene++; //Automatically advance to next scene
-      setTimeout(() => { isAnimating = true;  introAnimationManager(introScene); isAnimating = false; }, 2400);
+      isAnimating = true;
+      setTimeout(() => { introAnimationManager(introScene); isAnimating = false; }, 2400);
     break;
 
 
@@ -200,10 +214,21 @@ function introAnimationManager(scene) {
 }
 
 function procedIntroAnimation() {
-  if (!isAnimating && introScene < 5) {
-      introScene++;
-      introAnimationManager(introScene);
-  }
+  const now = Date.now();
+
+  // Ignore input unless we are genuinely idle at a manual-wait scene,
+  // not mid-animation, not past the user-controlled portion, and not a rapid repeat.
+  if (!inputUnlocked) return;
+  if (isAnimating) return;
+  if (introScene >= 5) return;
+  if (now - lastAdvance < INTRO_INPUT_THROTTLE) return;
+
+  // Lock immediately so nothing else (including a second spammed event) can advance.
+  inputUnlocked = false;
+  lastAdvance = now;
+
+  introScene++;
+  introAnimationManager(introScene);
 }
 
 var minTyperSpeed = 30;
@@ -241,12 +266,11 @@ function typeWriter(obj_id, txt_to_write, fastFawardEnable) {
 
       isAnimating = false;
 
-      /*
-      if (fastFawardEnable) {
-        introScene++;
-        introAnimationManager(introScene);
+      // Only the two manual-wait paragraphs (scene 0 and scene 2) hand control
+      // back to the user. Every other typed/auto scene stays locked.
+      if (introScene === 0 || introScene === 2) {
+        inputUnlocked = true;
       }
-      */
     };
   }
 }
