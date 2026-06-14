@@ -1,4 +1,4 @@
-let workJSON;
+﻿let workJSON;
 let maxScroll;
 let introStatus;
 
@@ -597,7 +597,7 @@ window.onclick = function(event) {
     changeBgLineColor("#999999")
     changeBgColor("#FFFFFF")
 
-    barba.go("/index.html");
+    barba.go("index.html");
   }
 
   function goToAboutpage() {
@@ -605,7 +605,7 @@ window.onclick = function(event) {
     changeBgLineColor("#999999")
     changeBgColor("#FFFFFF")
 
-    barba.go("/pages/about.html");
+    barba.go("pages/about.html");
   }
 
   let contactsAreOpen = false;
