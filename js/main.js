@@ -10,14 +10,14 @@ function isHomePage() {
   return last === "" || last === "index.html";
 }
 
-// True while the intro is still playing (home page, not yet completed).
+// True while the intro is still playing (home page, not yet finished).
 function introIsRunning() {
   return !introStatus && introScene < 7;
 }
 
-// Block NATIVE page scrolling during the intro so spamming the wheel/touch/keys
-// cannot slide the document down past the still-typing text. The intro scrolls the
-// page itself in scene 3 via window.scrollTo (programmatic), which is unaffected by these.
+// Block NATIVE page scrolling during the intro so spamming the wheel/touch/keys cannot slide
+// the document down past the still-typing text. Scene 3 scrolls the page itself via
+// window.scrollTo (programmatic), which is unaffected by these preventDefault calls.
 function preventIntroScroll(e) {
   if (introIsRunning()) { e.preventDefault(); }
 }
@@ -70,8 +70,7 @@ window.onload = function(event) {
     document.body.addEventListener("keyup", procedIntroAnimation, false);
     document.body.addEventListener("wheel", procedIntroAnimation, false);
 
-    // Suppress native scrolling for the duration of the intro (passive:false is required
-    // so preventDefault actually works on wheel/touchmove).
+    // Suppress native scrolling for the duration of the intro (passive:false so preventDefault works).
     window.addEventListener("wheel", preventIntroScroll, { passive: false });
     window.addEventListener("touchmove", preventIntroScroll, { passive: false });
     window.addEventListener("keydown", preventIntroKeyScroll, false);
@@ -118,6 +117,13 @@ let secondSectionHeight;
 let introScene = -1;
 let isAnimating = false;
 
+// Intro input gate: TRUE only when the intro is idle and ready to accept a user advance
+// (the very start, and after paragraph 1 and paragraph 2 finish typing). FALSE during every
+// animation and auto-advancing scene, so a scene can never be skipped by spamming input.
+let awaitingUserInput = false;
+let lastIntroAdvance = 0;
+const INTRO_INPUT_THROTTLE = 600; // ms
+
 function introAnimationManager(scene) {
   switch (scene) {
     case -1: //preparation for animation
@@ -144,7 +150,8 @@ function introAnimationManager(scene) {
         paragrapghBottom.innerHTML = "";
 
         aboveWorkText.innerHTML = "";
-        
+
+        awaitingUserInput = true; // ready to accept the first user advance (-1 -> 0)
       break;
 
     case 0: //First parahrapher
@@ -154,10 +161,11 @@ function introAnimationManager(scene) {
 
     case 1: //diver line animation
         document.getElementById("first-divider").classList.remove("d-none");
-        typeWriter("first-divider", firstDivider);
-
-        introScene++; //Automatically advance to next scene
-        setTimeout(() => { isAnimating = true;  introAnimationManager(introScene); isAnimating = false; }, 500);
+        typeWriter("first-divider", firstDivider, () => {
+          // advance to scene 2 ONLY after the divider has fully typed
+          introScene++;
+          introAnimationManager(introScene);
+        });
       break;
   
     case 2: //Second parahrapher
@@ -175,35 +183,34 @@ function introAnimationManager(scene) {
     case 4: //positionated cursor at top of the page
       document.getElementById("cursor").style.animation = "blinking 1s linear 0s infinite normal";
 
+      isAnimating = true; // stay locked through the cursor-reposition pause and into scene 5
+
       setTimeout(() => {
-        isAnimating = true;  
-        
         document.getElementById("aboveWorkText").classList.remove("d-none");
         document.getElementById("aboveWorkText").innerHTML = "";
-  
+
         document.getElementById("cursor").style.top = document.getElementById("aboveWorkText").getBoundingClientRect().top + "px";
         document.getElementById("cursor").style.left = document.getElementById("aboveWorkText").getBoundingClientRect().left + "px";
-  
+
         document.getElementById("cursor").style.paddingTop = window.getComputedStyle(document.getElementById("paragrapghBottom"), null).getPropertyValue('padding-top');
         document.getElementById("cursor").style.paddingLeft = 0 + "px";
-        
-        isAnimating = false;
       }, 200);
 
       introScene++; //Automatically advance to next scene
-      setTimeout(() => { isAnimating = true;  introAnimationManager(introScene); isAnimating = false; }, 1200);
+      setTimeout(() => { introAnimationManager(introScene); }, 1200);
 
     break;
 
 
     case 5: //aboveWorks Text
       document.getElementById("cursor").classList.add("d-hide");
-
-      typeWriter("aboveWorkText", aboveWorkText);
       document.getElementById("cursor").classList.add("d-none");
 
-      introScene++; //Automatically advance to next scene
-      setTimeout(() => { isAnimating = true;  introAnimationManager(introScene); isAnimating = false; }, 2400);
+      typeWriter("aboveWorkText", aboveWorkText, () => {
+        // launch the appear animation ONLY after the text has fully typed
+        introScene++;
+        introAnimationManager(introScene);
+      });
     break;
 
 
@@ -226,16 +233,24 @@ function introAnimationManager(scene) {
 }
 
 function procedIntroAnimation() {
-  if (!isAnimating && introScene < 5) {
-      introScene++;
-      introAnimationManager(introScene);
-  }
+  // Advance ONLY when the intro is genuinely waiting for the user. The gate is consumed
+  // immediately, so a whole burst of wheel/key events yields exactly one advance, and the
+  // auto-advancing scenes (divider, scroll, final text, appear) can never be interrupted.
+  if (!awaitingUserInput) return;
+
+  const now = Date.now();
+  if (now - lastIntroAdvance < INTRO_INPUT_THROTTLE) return; // guard against double-fire
+
+  awaitingUserInput = false; // consume; nothing else accepted until the next wait point reopens it
+  lastIntroAdvance = now;
+  introScene++;
+  introAnimationManager(introScene);
 }
 
 var minTyperSpeed = 30;
 var maxTyperSpeed = 2000;
 
-function typeWriter(obj_id, txt_to_write, fastFawardEnable) {
+function typeWriter(obj_id, txt_to_write, onComplete) {
   var t = 0;
 
   isAnimating = true;
@@ -266,13 +281,13 @@ function typeWriter(obj_id, txt_to_write, fastFawardEnable) {
       document.getElementById("cursor").classList.remove("hide");
 
       isAnimating = false;
+      lastIntroAdvance = Date.now();
 
-      /*
-      if (fastFawardEnable) {
-        introScene++;
-        introAnimationManager(introScene);
+      if (typeof onComplete === "function") {
+        onComplete();              // auto-advance scenes: divider -> scene 2, final text -> appear
+      } else {
+        awaitingUserInput = true;  // manual-wait paragraphs (scene 0 and scene 2): accept next advance
       }
-      */
     };
   }
 }
