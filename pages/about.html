@@ -29,18 +29,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&display=swap">
 
     <!-- JS SCRIPTS -->
-    <script>
-      // Derive SITE_ROOT from the page's own location so the same files work on the
-      // GitHub project subpath, on a future custom domain (root), and offline in a
-      // local preview. Structure assumed: root holds index.html, sub-pages live in /pages/.
-      (function () {
-        var p = window.location.pathname;
-        p = p.replace(/[^\/]*\.html?$/, "");
-        p = p.replace(/pages\/$/, "");
-        if (!p.endsWith("/")) p += "/";
-        window.SITE_ROOT = p;
-      })();
-    </script>
+    <script>window.SITE_ROOT = "/portfolio-andrea-picardi/";</script>
     <script src="../js/main.js" defer></script> <!-- <script src="js/main.js" defer></script> -->
 
     <!-- TWEEN LIBRARY -->
@@ -212,7 +201,7 @@
           <div id="belowTopbar-Wrapper" class="barbaContent" data-barba="container" data-barba-namespace="homepage">
             
           <div id="firstParagraph" class="row align-items-baseline">
-            <div class="col-12 col-lg-8 order-2 order-lg-1 with-backcover">
+            <div class="col-12 col-lg-8 order-2 order-lg-1">
               <p id="aboutMeTitle">About</p>
               <!-- <div id="aboveWorkTextUnderline" class="appearAble"></div> -->
             
@@ -265,7 +254,7 @@
                   </div>
                 </div>
 
-                <div class="col-12 col-sm-12 col-md-10 col-lg-10 academicSection col order-sm-1 order-md-2">
+                <div class="col-12 academicSection col order-sm-1 order-md-2">
 
                   <div class="academicSectionTitle about_info_header work_info_underline">Academic Activity: Publications</div>
                   <ul id="publicationsList">

@@ -164,7 +164,6 @@ function isHomeUrl(p) {
 
       after(data) {
         updateTopBarWrapper();
-        setupProjectNav(); // re-wire prev/next for the page just entered (window.onload does not refire under barba)
       }
     }]
   });
