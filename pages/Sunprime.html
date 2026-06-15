@@ -29,7 +29,18 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&display=swap">
 
     <!-- JS SCRIPTS -->
-    <script>window.SITE_ROOT = "/portfolio-andrea-picardi/";</script>
+    <script>
+      // Derive SITE_ROOT from the page's own location so the same files work on the
+      // GitHub project subpath, on a future custom domain (root), and offline in a
+      // local preview. Structure assumed: root holds index.html, sub-pages live in /pages/.
+      (function () {
+        var p = window.location.pathname;
+        p = p.replace(/[^\/]*\.html?$/, "");
+        p = p.replace(/pages\/$/, "");
+        if (!p.endsWith("/")) p += "/";
+        window.SITE_ROOT = p;
+      })();
+    </script>
     <script src="../js/main.js" defer></script> <!-- <script src="js/main.js" defer></script> -->
 
     <!-- TWEEN LIBRARY -->
@@ -198,7 +209,7 @@
         </div>
 
         <div id="content" data-barba="wrapper" class="hide">
-          <div id="belowTopbar-Wrapper" class="barbaContent" data-barba="container" data-barba-namespace="homepage">
+          <div id="belowTopbar-Wrapper" class="barbaContent" data-barba="container" data-barba-namespace="homepage" data-work-key="Sunprime">
             
           <div id="firstParagraph" class="row align-items-baseline">
             <div class="col-12 col-lg-8 order-2 order-lg-1 with-backcover">
@@ -388,7 +399,7 @@
                     <div class="col-12 workImgGroup">
                       <div class="row">
                         <div class="imageWapper">
-                          <img src="../res/Images/SunPrime/sidebar.png" alt="Project View interface with an expanded sidebar listing pipeline stages from Lead Management to Budget Overview">
+                          <img class="largeImage" src="../res/Images/SunPrime/sidebar.png" alt="Project View interface with an expanded sidebar listing pipeline stages from Lead Management to Budget Overview">
                         </div>
                       </div>
                     </div>
@@ -422,7 +433,7 @@
                     <div class="col-12 workImgGroup">
                       <div class="row">
                         <div class="imageWapper">
-                          <img src="../res/Images/SunPrime/search_filters.png" alt="Advanced search panel with multiple filter fields combined using Boolean logic">
+                          <img  src="../res/Images/SunPrime/search_filters.png" alt="Advanced search panel with multiple filter fields combined using Boolean logic">
                         </div>
                         <div class="col-12 imgDescription">
                           Advanced Search and Filtering: complex queries with Boolean logic, letting the management team retrieve projects and documents on multiple criteria at once
@@ -466,6 +477,22 @@
 
                 </div>
 
+              </div>
+            
+              <!-- Project prev/next navigation -->
+              <div id="projNav" class="row justify-content-between align-items-center appearAble">
+                <div class="col-6 d-flex justify-content-start">
+                  <button id="projNavPrev" class="proj_nav_button hoverable" onclick="">
+                    <span class="material-symbols-outlined button-icon">arrow_back</span>
+                    <span class="proj_nav_label">Previous</span>
+                  </button>
+                </div>
+                <div class="col-6 d-flex justify-content-end">
+                  <button id="projNavNext" class="proj_nav_button hoverable" onclick="">
+                    <span class="proj_nav_label">Next</span>
+                    <span class="material-symbols-outlined button-icon">arrow_forward</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
