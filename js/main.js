@@ -10,6 +10,8 @@ function isHomePage() {
   return last === "" || last === "index.html";
 }
 
+
+
 // True while the intro is still playing (home page, not yet finished).
 function introIsRunning() {
   return !introStatus && introScene < 7;
@@ -104,6 +106,9 @@ window.onload = function(event) {
 
   //Update top menu bar for showing the right butons
   upDateTopMenu();
+
+  //Wire prev/next project buttons (if this is a project page)
+  setupProjectNav();
 
 }
 
@@ -385,6 +390,59 @@ window.onclick = function(event) {
   }
 
   */
+
+
+// ---- Project prev/next navigation -------------------------------------------------
+// Ordered, visible work keys come from Porfolio_Works.json (same source as the homepage),
+// so prev/next follows the homepage order and never lands on a hidden/archived entry.
+// We reuse changePage(key), which sets the colour tween and calls barba.go, so prev/next
+// inherits the exact same scroll-to-top + fade transition as the nav menu.
+
+let worksOrderCache = null; // array of visible keys in order
+
+function ensureWorksOrder() {
+  // Resolve to the ordered array of visible work keys, fetching the JSON once if needed.
+  if (worksOrderCache) { return Promise.resolve(worksOrderCache); }
+  if (typeof workJSON !== "undefined" && workJSON) {
+    worksOrderCache = orderedVisibleKeys(workJSON);
+    return Promise.resolve(worksOrderCache);
+  }
+  return fetch(SITE_ROOT + "res/Porfolio_Works.json")
+    .then(r => r.json())
+    .then(data => { workJSON = data; worksOrderCache = orderedVisibleKeys(data); return worksOrderCache; })
+    .catch(err => { console.error("prev/next: could not load works list", err); return []; });
+}
+
+function orderedVisibleKeys(json) {
+  // Preserve JSON insertion order; keep only visible, non-archived entries.
+  return Object.keys(json).filter(k => {
+    const w = json[k];
+    return w && w.Is_visible !== false && w.Is_archived !== true && k !== "proto_work";
+  });
+}
+
+function setupProjectNav() {
+  const host = document.querySelector("[data-work-key]");
+  if (!host) { return; } // not a project page
+  const currentKey = host.getAttribute("data-work-key");
+
+  const prevBtn = document.getElementById("projNavPrev");
+  const nextBtn = document.getElementById("projNavNext");
+  if (!prevBtn || !nextBtn) { return; }
+
+  ensureWorksOrder().then(order => {
+    if (!order || order.length === 0) { return; }
+    let i = order.indexOf(currentKey);
+    if (i === -1) { return; } // current page not in list; leave buttons inert
+
+    const prevKey = order[(i - 1 + order.length) % order.length]; // wrap-around
+    const nextKey = order[(i + 1) % order.length];
+
+    prevBtn.setAttribute("onclick", "changePage('" + prevKey + "')");
+    nextBtn.setAttribute("onclick", "changePage('" + nextKey + "')");
+  });
+}
+// -----------------------------------------------------------------------------------
 
   function loadWorks() {
 
@@ -750,8 +808,6 @@ window.onclick = function(event) {
     ctx.fillStyle = str;
     return ctx.fillStyle;
 }
-
-
 
 function smoothScrollTo(top, left, behavior) {
   return new Promise((resolve) => {

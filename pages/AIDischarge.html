@@ -15,6 +15,7 @@
   
     <!-- CSS STYLESHEETs -->
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/photoswipe.css">
 
     <!-- FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -29,7 +30,18 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&display=swap">
 
     <!-- JS SCRIPTS -->
-    <script>window.SITE_ROOT = "/portfolio-andrea-picardi/";</script>
+    <script>
+      // Derive SITE_ROOT from the page's own location so the same files work on the
+      // GitHub project subpath, on a future custom domain (root), and offline in a
+      // local preview. Structure assumed: root holds index.html, sub-pages live in /pages/.
+      (function () {
+        var p = window.location.pathname;
+        p = p.replace(/[^\/]*\.html?$/, "");
+        p = p.replace(/pages\/$/, "");
+        if (!p.endsWith("/")) p += "/";
+        window.SITE_ROOT = p;
+      })();
+    </script>
     <script src="../js/main.js" defer></script> <!-- <script src="js/main.js" defer></script> -->
 
     <!-- TWEEN LIBRARY -->
@@ -64,6 +76,7 @@
       /* END NO JS Cover CSS */
 
     </style>
+      <script type="module" src="../js/lightbox.js"></script>
   </head>
   <body>
 
@@ -139,7 +152,6 @@
       </div>
     </div>
   </div>
-  
   <div id="background-canvas"></div>
 
   <div id="main" class="container d-none">
@@ -198,7 +210,7 @@
         </div>
 
         <div id="content" data-barba="wrapper" class="hide">
-          <div id="belowTopbar-Wrapper" class="barbaContent" data-barba="container" data-barba-namespace="homepage">
+          <div id="belowTopbar-Wrapper" class="barbaContent" data-barba="container" data-barba-namespace="homepage" data-work-key="AI_Discharge">
             
           <div id="firstParagraph" class="row align-items-baseline">
             <div class="col-12 col-lg-8 order-2 order-lg-1 with-backcover">
@@ -471,6 +483,22 @@
 
                 </div>
 
+              </div>
+            
+              <!-- Project prev/next navigation -->
+              <div id="projNav" class="row justify-content-between align-items-center appearAble">
+                <div class="col-6 d-flex justify-content-start">
+                  <button id="projNavPrev" class="proj_nav_button hoverable" onclick="">
+                    <span class="material-symbols-outlined button-icon">arrow_back</span>
+                    <span class="proj_nav_label">Previous</span>
+                  </button>
+                </div>
+                <div class="col-6 d-flex justify-content-end">
+                  <button id="projNavNext" class="proj_nav_button hoverable" onclick="">
+                    <span class="proj_nav_label">Next</span>
+                    <span class="material-symbols-outlined button-icon">arrow_forward</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
